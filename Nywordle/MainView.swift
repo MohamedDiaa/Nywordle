@@ -10,12 +10,12 @@ import SwiftUI
 struct CellValue: Identifiable, Hashable {
     var id = UUID.init().uuidString
     var value: String
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
+    var color: Color = .white
 }
 
 struct MainView: View {
+
+    var answer = ["F","I","N","C","H"]
 
     @State var row: Int = 0
     @State var column: Int = 0
@@ -35,7 +35,7 @@ struct MainView: View {
 
                             ForEach(word, id: \.id) {cellValue in
                                 let width = proxy.size.width / 5
-                                cellView(char: String(cellValue.value),width: width)
+                                cellView(cell: cellValue ,width: width)
 
                             }
                         }
@@ -51,15 +51,15 @@ struct MainView: View {
     }
 
     @ViewBuilder
-    func cellView(char: String, width: CGFloat) -> some View {
-        Color.white
+    func cellView(cell: CellValue, width: CGFloat) -> some View {
+        cell.color
             .font(.system(size: 60))
             .padding(10)
             .foregroundStyle(.white)
             .background(Rectangle().fill(.black).border(.blue, width: 1))
             .frame(width: width, height: 80)
             .overlay {
-                Text(char)
+                Text(cell.value)
                     .font(.system(size: 36))
             }
 
@@ -98,16 +98,30 @@ struct MainView: View {
                 if char == "🔙" , column > 0{
                     column -= 1
                     words[row][column].value = ""
-
+                    words[row][column].color = .white
                 }
                 if column < 5{
                     if (char != "🔙" && char != "Enter") {
+
                         words[row][column].value = char
                         column += 1
                     }
                 }
 
                 else if char == "Enter" {
+
+                    words[row].enumerated().forEach { index, cellValue  in
+                        print(index,cellValue.value)
+                        if let answerIndex = answer.firstIndex(of: cellValue.value) {
+
+                            words[row][index].color = answerIndex == index ? .green : .yellow
+                        }
+                        else {
+                            words[row][index].color = .gray.opacity(0.5)
+
+                        }
+                    }
+
                     row += 1
                     column = 0
                 }
