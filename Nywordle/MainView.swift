@@ -92,10 +92,26 @@ struct MainView: View {
             .frame(width: 100)
             .onTapGesture {
 
-                if row < 6, column < 5 {
-                    words[row][column].value = char
-                    column += 1
+                guard row < 6
+                else { return }
+
+                if char == "🔙" , column > 0{
+                    column -= 1
+                    words[row][column].value = ""
+
                 }
+                if column < 5{
+                    if (char != "🔙" && char != "Enter") {
+                        words[row][column].value = char
+                        column += 1
+                    }
+                }
+
+                else if char == "Enter" {
+                    row += 1
+                    column = 0
+                }
+
             }
     }
 
