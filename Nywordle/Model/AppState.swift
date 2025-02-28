@@ -10,6 +10,6 @@ import Foundation
 @Observable
 class AppState {
 
-    var theme: Palette = .earth
+    var theme: Palette = .gray
 }
 

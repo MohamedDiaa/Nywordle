@@ -39,6 +39,9 @@ struct MainView: View {
                     .ignoresSafeArea()
 
                 VStack {
+
+                    headerView()
+
                     LazyVGrid(columns: [GridItem(),GridItem(),GridItem(),GridItem(),GridItem()], alignment: .center, spacing: 0) {
 
                         ForEach(words, id: \.self) { word in
@@ -46,7 +49,6 @@ struct MainView: View {
                             ForEach(word, id: \.id) {cellValue in
                                 let width = proxy.size.width / 5
                                 cellView(cell: cellValue ,width: width)
-
                             }
                         }
                     }
@@ -57,23 +59,21 @@ struct MainView: View {
                 }
             }
         }
-
     }
 
     @ViewBuilder
     func cellView(cell: CellValue, width: CGFloat) -> some View {
-        //        cell.color
+
         cellColor(cell.state)
             .font(.system(size: 60))
-            .padding(10)
+            .padding(8)
             .foregroundStyle(.black)
-            .background(Rectangle().fill(.black).border(.blue, width: 1))
+//            .background(Rectangle().fill())
             .frame(width: width, height: 80)
             .overlay {
                 Text(cell.value)
                     .font(.system(size: 36))
             }
-
     }
 
     func cellColor(_ state: CellState) -> Color {
@@ -81,7 +81,7 @@ struct MainView: View {
         case .correct:
             return .green
         case .wrong:
-            return appState.theme.accentColor
+            return .gray
         case .almostCorrect:
             return .yellow
         case .empty:
@@ -159,6 +159,48 @@ struct MainView: View {
 
         return (0..<6).map { _ in
             (0..<5).map { _ in CellValue(value: "") }
+        }
+    }
+
+    @ViewBuilder
+    private func headerView() -> some View {
+
+        HStack {
+            Spacer()
+            
+            Menu.init(content: {
+                Section("Select a theme") {
+                    Button("Green") {
+                        withAnimation {
+                            appState.theme = .green
+                        }
+                    }
+
+                    Button("Indigo") {
+                        withAnimation {
+                            appState.theme = .indigo
+                        }
+                    }
+
+                    Button("Gray") {
+                        withAnimation {
+                            appState.theme = .gray
+                        }
+                    }
+
+                    Button("Earth") {
+                        withAnimation {
+                            appState.theme = .earth
+                        }
+                    }
+                }
+            }, label: {
+                Image(systemName: "line.3.horizontal")
+                    .font(.title2)
+                    .frame(width: 44, height: 44)
+            })
+            .buttonStyle(.plain)
+
         }
     }
 }
