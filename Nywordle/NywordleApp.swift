@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+let validWords = ValidWords()
 
 @main
 struct NywordleApp: App {

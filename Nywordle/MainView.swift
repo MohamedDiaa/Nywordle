@@ -68,7 +68,6 @@ struct MainView: View {
             .font(.system(size: 60))
             .padding(8)
             .foregroundStyle(.black)
-//            .background(Rectangle().fill())
             .frame(width: width, height: 80)
             .overlay {
                 Text(cell.value)
@@ -112,7 +111,7 @@ struct MainView: View {
     func key(char: String) -> some View {
         Text("\(char)")
             .padding()
-            .background(.gray.opacity(0.5))
+            .background(appState.theme.tileBody)
             .foregroundStyle(.white)
             .bold()
             .frame(width: 100)
@@ -137,6 +136,11 @@ struct MainView: View {
                 }
 
                 else if char == "Enter" {
+
+                    // check the entered word is a valid word
+                    let enteredWord = words[row].reduce("") { $0 + $1.value }
+                    guard validWords.contains(enteredWord.lowercased())
+                    else { return }
 
                     words[row].enumerated().forEach { index, cellValue  in
                         print(index,cellValue.value)
@@ -167,7 +171,7 @@ struct MainView: View {
 
         HStack {
             Spacer()
-            
+
             Menu.init(content: {
                 Section("Select a theme") {
                     Button("Green") {
