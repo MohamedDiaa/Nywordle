@@ -34,6 +34,7 @@ struct MainView: View {
     var body: some View {
 
         GeometryReader { proxy in
+
             ZStack {
                 appState.theme.background
                     .ignoresSafeArea()
@@ -42,7 +43,7 @@ struct MainView: View {
 
                     headerView()
 
-                    LazyVGrid(columns: [GridItem(),GridItem(),GridItem(),GridItem(),GridItem()], alignment: .center, spacing: 0) {
+                    LazyVGrid(columns: Array(repeating: GridItem(), count: 5), alignment: .center, spacing: 0) {
 
                         ForEach(words, id: \.self) { word in
 
@@ -55,7 +56,8 @@ struct MainView: View {
                     .padding()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    keyboard()
+                    keyboard(width: proxy.size.width)
+
                 }
             }
         }
@@ -90,73 +92,75 @@ struct MainView: View {
         }
     }
 
-    let alphabets: [String] = ["A","B","C","D","E",
-                               "F","G","H","I","J",
-                               "K","L","M","N","O",
-                               "P","Q","R","S","T",
-                               "U","V","W","X","Y",
-                               "Z","Enter","🔙"]
+    let submit = "🤝"
+    let delete = "🗑️"
+
+    let alphabets: [String] =  ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","🤝","Z","X","C","V","B","N","M","🗑️"]
+
+    let rowCount = 10
 
     @ViewBuilder
-    func keyboard() -> some View {
-        LazyVGrid(columns: Array.init(repeating: GridItem(.flexible(minimum: 10, maximum: 200)), count: 8),spacing: 5) {
+    func keyboard(width: Double) -> some View {
+        LazyVGrid(columns: Array.init(repeating: GridItem(), count: rowCount),spacing: 0) {
 
-            ForEach(alphabets, id: \.self) { char in
-                key(char: char)
+            ForEach(alphabets, id: \.self) { value in
+                key(value, width: width/Double(rowCount) )
             }
         }
     }
 
     @ViewBuilder
-    func key(char: String) -> some View {
-        Text("\(char)")
-            .padding()
-            .background(appState.theme.tileBody)
-            .foregroundStyle(.white)
-            .bold()
-            .frame(width: 100)
-            .onTapGesture {
+    func key(_ value: String, width: Double) -> some View {
 
-                guard row < 6
-                else { return }
+        Button(action: {
 
-                if char == "🔙" , column > 0{
-                    column -= 1
-                    words[row][column].value = ""
-                    words[row][column].state = .empty
-                }
-                if column < 5{
-                    if (char != "🔙" && char != "Enter") {
+            guard row < 6
+            else { return }
 
-                        words[row][column].value = char
-                        words[row][column].state = .filled
+            if value == delete , column > 0{
+                column -= 1
+                words[row][column].value = ""
+                words[row][column].state = .empty
+            }
+            if column < 5{
+                if (value != delete && value != submit) {
 
-                        column += 1
-                    }
-                }
+                    words[row][column].value = value
+                    words[row][column].state = .filled
 
-                else if char == "Enter" {
-
-                    // check the entered word is a valid word
-                    let enteredWord = words[row].reduce("") { $0 + $1.value }
-                    guard validWords.contains(enteredWord.lowercased())
-                    else { return }
-
-                    words[row].enumerated().forEach { index, cellValue  in
-                        print(index,cellValue.value)
-                        if let answerIndex = answer.firstIndex(of: cellValue.value) {
-
-                            words[row][index].state = answerIndex == index ? .correct : .almostCorrect
-                        }
-                        else {
-                            words[row][index].state = .wrong
-                        }
-                    }
-
-                    row += 1
-                    column = 0
+                    column += 1
                 }
             }
+
+            else if value == submit {
+
+                // check the entered word is a valid word
+                let enteredWord = words[row].reduce("") { $0 + $1.value }
+                guard validWords.contains(enteredWord.lowercased())
+                else { return }
+
+                words[row].enumerated().forEach { index, cellValue  in
+                    print(index,cellValue.value)
+                    if let answerIndex = answer.firstIndex(of: cellValue.value) {
+
+                        words[row][index].state = answerIndex == index ? .correct : .almostCorrect
+                    }
+                    else {
+                        words[row][index].state = .wrong
+                    }
+                }
+
+                row += 1
+                column = 0
+            }
+        }, label: {
+
+            Text("\(value)")
+                .frame(width: width, height: 50)
+                .background(appState.theme.tileBody)
+                .foregroundStyle(.white)
+                .bold()
+        })
     }
 
     static func createCells() -> [[CellValue]] {
