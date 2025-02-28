@@ -118,7 +118,6 @@ struct MainView: View {
                         }
                         else {
                             words[row][index].color = .gray.opacity(0.5)
-
                         }
                     }
 
