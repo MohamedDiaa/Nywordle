@@ -4,12 +4,12 @@
 //
 //  Created by Mohamed Alwakil on 2025-02-28.
 //
-import Combine
+import SwiftUI
 import Foundation
 
 @Observable
 class AppState {
 
-//    var theme: Palette
+    var theme: Palette = .earth
 }
 

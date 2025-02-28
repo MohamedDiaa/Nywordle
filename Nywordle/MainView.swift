@@ -7,13 +7,23 @@
 
 import SwiftUI
 
+enum CellState {
+    case filled
+    case empty
+    case wrong
+    case correct
+    case almostCorrect
+}
+
 struct CellValue: Identifiable, Hashable {
     var id = UUID.init().uuidString
     var value: String
-    var color: Color = .white
+    var state: CellState = .empty
 }
 
 struct MainView: View {
+
+    @Environment(AppState.self) var appState
 
     var answer = ["F","I","N","C","H"]
 
@@ -25,7 +35,7 @@ struct MainView: View {
 
         GeometryReader { proxy in
             ZStack {
-                Color.black.opacity(0.7).mix(with: .blue, by: 0.3)
+                appState.theme.background
                     .ignoresSafeArea()
 
                 VStack {
@@ -52,10 +62,11 @@ struct MainView: View {
 
     @ViewBuilder
     func cellView(cell: CellValue, width: CGFloat) -> some View {
-        cell.color
+        //        cell.color
+        cellColor(cell.state)
             .font(.system(size: 60))
             .padding(10)
-            .foregroundStyle(.white)
+            .foregroundStyle(.black)
             .background(Rectangle().fill(.black).border(.blue, width: 1))
             .frame(width: width, height: 80)
             .overlay {
@@ -65,16 +76,31 @@ struct MainView: View {
 
     }
 
+    func cellColor(_ state: CellState) -> Color {
+        switch state {
+        case .correct:
+            return .green
+        case .wrong:
+            return appState.theme.accentColor
+        case .almostCorrect:
+            return .yellow
+        case .empty:
+            return appState.theme.accentColor
+        case .filled:
+            return appState.theme.accentColor
+        }
+    }
+
     let alphabets: [String] = ["A","B","C","D","E",
-                     "F","G","H","I","J",
-                     "K","L","M","N","O",
-                     "P","Q","R","S","T",
-                     "U","V","W","X","Y",
-                     "Z","Enter","🔙"]
+                               "F","G","H","I","J",
+                               "K","L","M","N","O",
+                               "P","Q","R","S","T",
+                               "U","V","W","X","Y",
+                               "Z","Enter","🔙"]
 
     @ViewBuilder
     func keyboard() -> some View {
-        LazyVGrid(columns: Array.init(repeating: GridItem(), count: 10),spacing: 10) {
+        LazyVGrid(columns: Array.init(repeating: GridItem(.flexible(minimum: 10, maximum: 200)), count: 8),spacing: 5) {
 
             ForEach(alphabets, id: \.self) { char in
                 key(char: char)
@@ -98,12 +124,14 @@ struct MainView: View {
                 if char == "🔙" , column > 0{
                     column -= 1
                     words[row][column].value = ""
-                    words[row][column].color = .white
+                    words[row][column].state = .empty
                 }
                 if column < 5{
                     if (char != "🔙" && char != "Enter") {
 
                         words[row][column].value = char
+                        words[row][column].state = .filled
+
                         column += 1
                     }
                 }
@@ -114,17 +142,16 @@ struct MainView: View {
                         print(index,cellValue.value)
                         if let answerIndex = answer.firstIndex(of: cellValue.value) {
 
-                            words[row][index].color = answerIndex == index ? .green : .yellow
+                            words[row][index].state = answerIndex == index ? .correct : .almostCorrect
                         }
                         else {
-                            words[row][index].color = .gray.opacity(0.5)
+                            words[row][index].state = .wrong
                         }
                     }
 
                     row += 1
                     column = 0
                 }
-
             }
     }
 
