@@ -23,9 +23,16 @@ struct CellValue: Identifiable, Hashable {
 
 struct MainView: View {
 
-    @Environment(AppState.self) var appState
 
     var answer = ["F","I","N","C","H"]
+    let submit = "🤝"
+    let delete = "🗑️"
+
+    let keyboardRowCount = 10
+
+    let alphabets: [String] =  ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","🤝","Z","X","C","V","B","N","M","🗑️"]
+
+    @Environment(AppState.self) var appState
 
     @State var row: Int = 0
     @State var column: Int = 0
@@ -92,19 +99,14 @@ struct MainView: View {
         }
     }
 
-    let submit = "🤝"
-    let delete = "🗑️"
 
-    let alphabets: [String] =  ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","🤝","Z","X","C","V","B","N","M","🗑️"]
-
-    let rowCount = 10
 
     @ViewBuilder
     func keyboard(width: Double) -> some View {
-        LazyVGrid(columns: Array.init(repeating: GridItem(), count: rowCount),spacing: 0) {
+        LazyVGrid(columns: Array.init(repeating: GridItem(), count: keyboardRowCount),spacing: 0) {
 
             ForEach(alphabets, id: \.self) { value in
-                key(value, width: width/Double(rowCount) )
+                key(value, width: width/Double(keyboardRowCount) )
             }
         }
     }
